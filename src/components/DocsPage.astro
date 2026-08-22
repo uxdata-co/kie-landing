@@ -21,6 +21,7 @@ const toc = [
   ["guard", S.guard.h],
   ["config", S.config.h],
   ["skill", S.skill.h],
+  ["mcp", S.mcp.h],
   ["output", S.output.h],
   ["security", S.security.h],
   ["faq", S.faq.h],
@@ -39,7 +40,7 @@ const toc = [
 
   <article class="content">
     <header class="head">
-      <p class="eyebrow">kie · v0.5</p>
+      <p class="eyebrow">kie · v0.6</p>
       <h1>{d.title}</h1>
       <p class="lead">{d.lead}</p>
     </header>
@@ -140,6 +141,18 @@ const toc = [
         ))}
       </div>
       <p class="note" set:html={md(S.skill.alt)} />
+    </section>
+
+    <section id="mcp">
+      <h2>{S.mcp.h}</h2>
+      <p set:html={md(S.mcp.p)} />
+      <pre class="code"><code>{S.mcp.code}</code></pre>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tbody>{S.mcp.tools.map(([t, x]) => <tr><td>{t}</td><td set:html={md(x)} /></tr>)}</tbody>
+        </table>
+      </div>
+      <ul>{S.mcp.notes.map((x) => <li set:html={md(x)} />)}</ul>
     </section>
 
     <section id="output">

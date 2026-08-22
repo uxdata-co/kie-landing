@@ -22,7 +22,7 @@ export const heroTerminal = [
   "",
   ...LOGO.map(([c, line]) => L(c, line)),
   "",
-  `${L("w", "kie")} ${L("dim", "v0.5.0")} ${L("dim", "·")} ${L("b", "media generation for AI agents")}`,
+  `${L("w", "kie")} ${L("dim", "v0.6.0")} ${L("dim", "·")} ${L("b", "media generation for AI agents")}`,
   L("dim", "images · video · zero deps · spend-guarded"),
   "",
   `${L("p", "$")} kie credits`,

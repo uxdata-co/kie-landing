@@ -34,7 +34,7 @@ const en = {
     title: "Your key is money.",
     lead: "Media APIs are the most expensive credentials to leak. Most wrappers read the key from an env var, pull in hundreds of packages and ship a default webhook.",
     cards: [
-      { t: "Key in the keychain", d: "macOS Keychain, or a 0600 file. Env vars need an explicit opt-in. Every byte of output goes through a redactor." },
+      { t: "Key in the OS keystore", d: "macOS Keychain, Windows DPAPI or Linux Secret Service — a 0600 file only as fallback. Env vars need an explicit opt-in. Every byte of output goes through a redactor." },
       { t: "Hard spend cap", d: "Per-task cap, daily budget and balance check — all before the request leaves your machine." },
       { t: "No third parties", d: "Talks only to KIE's own hosts. No callbacks, no telemetry, no proxies." },
       { t: "Agent-native", d: "JSON on stdout, exit codes you can branch on, and always file paths — never URLs that expire." },
@@ -94,6 +94,17 @@ const en = {
         reply: "nano-banana-2, 2K — 12 credits. Saved to assets/stories/night-market.png. 164 credits left today.",
         cmds: ["kie credits --json", "kie image nano-banana-2 --prompt \"night market street, neon signs\" --aspect 9:16 --resolution 2K --out ./assets/stories --name night-market --json"],
       },
+      desktop: {
+        label: "Claude Desktop · Codex app",
+        steps: [
+          "Desktop apps run the agent's shells in a sandbox: no PATH, no keystore, no network to KIE. The skill can't run there — so use the MCP server instead.",
+          "Run `kie mcp install`. It registers `kie mcp` (stdio) in Claude Desktop, the Codex app and Cursor with the absolute Node path. Restart the app.",
+          "Ask normally. The app spawns `kie` on your machine; the key never leaves the keystore and the generated image shows up right in the chat.",
+        ],
+        prompt: "Generate a 16:9 hero image of an isometric coffee shop with warm light, then a night version.",
+        reply: "Here are both (8 credits each). Saved to kie-media/coffee-day.png and kie-media/coffee-night.png — 184 credits left today.",
+        cmds: ["kie mcp install --app claude", "# the app calls: kie_credits → kie_generate_image(model: nano-banana-2, aspect: 16:9)"],
+      },
     },
     rules: {
       title: "What the agent won't do",
@@ -124,7 +135,7 @@ const en = {
   },
   docs: {
     commands: [
-      ["kie key set|check|delete", "Store the API key (Keychain / 0600 file), verify it, remove it."],
+      ["kie key set|check|delete", "Store the API key (Keychain · DPAPI · Secret Service · 0600 file), verify it, remove it."],
       ["kie credits", "Balance plus today's spend against the daily budget."],
       ["kie models [--kind image|video]", "Curated catalog with the flags each model supports."],
       ["kie image <model> --prompt … [opts]", "Generate an image, wait, download."],
@@ -136,6 +147,7 @@ const en = {
       ["kie ledger [--limit 20]", "Local spend log with real creditsConsumed."],
       ["kie config set <key> <value>", "dailyBudget · maxCreditsPerTask · outDir · pollSeconds · waitTimeoutSeconds"],
       ["kie skill install [--agent claude|codex|cursor|gemini|all]", "Install the kie-media agent skill (--project for the current repo)."],
+      ["kie mcp · kie mcp install [--app claude|codex|cursor|all]", "MCP server on stdio for desktop apps; install registers it in Claude Desktop / Codex / Cursor."],
     ],
     flags: [
       ["--prompt <text>", "The prompt."],
@@ -161,7 +173,7 @@ const en = {
   faq: {
     eyebrow: "FAQ",
     items: [
-      { q: "Does it work on Linux or Windows?", a: "Yes. Without a Keychain the key is stored in ~/.config/kie/key with 0600 permissions. Everything else is identical." },
+      { q: "Does it work on Linux or Windows?", a: "Yes. The key goes to Windows DPAPI (user scope) or the Linux Secret Service (secret-tool); without either it falls back to ~/.config/kie/key with 0600 permissions. Everything else is identical." },
       { q: "How is the npm package built?", a: "Every release is published by GitHub Actions from a git tag, with npm provenance: the tarball is cryptographically linked to the commit that produced it. Zero runtime dependencies, so what you audit is what runs." },
       { q: "What if a model isn't in the catalog?", a: "kie run <model-id> --input '{…}' --max-credits N sends any KIE Market model. Check the schema on docs.kie.ai first, or use --dry-run." },
       { q: "Can I use it without an agent?", a: "Of course. In a terminal it renders tables, panels and a live spinner; pipe it and you get JSON." },
@@ -205,7 +217,7 @@ const es: typeof en = {
     title: "Tu llave es dinero.",
     lead: "Las APIs de medios son las credenciales más caras de perder. La mayoría de wrappers leen la key de una variable de entorno, arrastran cientos de paquetes y traen un webhook por defecto.",
     cards: [
-      { t: "Key en el llavero", d: "Keychain de macOS, o archivo 0600. Las variables de entorno exigen opt-in explícito. Toda la salida pasa por un redactor." },
+      { t: "Key en el llavero del sistema", d: "Keychain de macOS, DPAPI de Windows o Secret Service de Linux — archivo 0600 solo como respaldo. Las variables de entorno exigen opt-in explícito. Toda la salida pasa por un redactor." },
       { t: "Tope de gasto duro", d: "Tope por tarea, presupuesto diario y chequeo de saldo — todo antes de que el request salga de tu máquina." },
       { t: "Sin terceros", d: "Solo habla con los hosts de KIE. Sin callbacks, sin telemetría, sin proxies." },
       { t: "Nativo para agentes", d: "JSON en stdout, códigos de salida para bifurcar y siempre rutas de archivo — nunca URLs que expiran." },
@@ -265,6 +277,17 @@ const es: typeof en = {
         reply: "nano-banana-2, 2K — 12 créditos. Guardada en assets/stories/night-market.png. Quedan 164 créditos hoy.",
         cmds: ["kie credits --json", "kie image nano-banana-2 --prompt \"calle de mercado nocturno, letreros de neón\" --aspect 9:16 --resolution 2K --out ./assets/stories --name night-market --json"],
       },
+      desktop: {
+        label: "Claude Desktop · app de Codex",
+        steps: [
+          "Las apps de escritorio corren los shells del agente en un sandbox: sin PATH, sin llavero, sin red hacia KIE. El skill no puede correr ahí — usa el servidor MCP.",
+          "Ejecuta `kie mcp install`. Registra `kie mcp` (stdio) en Claude Desktop, la app de Codex y Cursor con la ruta absoluta de Node. Reinicia la app.",
+          "Pide con normalidad. La app lanza `kie` en tu máquina; la key nunca sale del llavero y la imagen generada aparece directamente en el chat.",
+        ],
+        prompt: "Genera una imagen hero 16:9 de una cafetería isométrica con luz cálida, y luego una versión nocturna.",
+        reply: "Aquí están las dos (8 créditos cada una). Guardadas en kie-media/coffee-day.png y kie-media/coffee-night.png — quedan 184 créditos hoy.",
+        cmds: ["kie mcp install --app claude", "# la app llama: kie_credits → kie_generate_image(model: nano-banana-2, aspect: 16:9)"],
+      },
     },
     rules: {
       title: "Lo que el agente no hará",
@@ -295,7 +318,7 @@ const es: typeof en = {
   },
   docs: {
     commands: [
-      ["kie key set|check|delete", "Guardar la API key (Keychain / archivo 0600), verificarla, eliminarla."],
+      ["kie key set|check|delete", "Guardar la API key (Keychain · DPAPI · Secret Service · archivo 0600), verificarla, eliminarla."],
       ["kie credits", "Saldo más el gasto de hoy contra el presupuesto diario."],
       ["kie models [--kind image|video]", "Catálogo curado con los flags que soporta cada modelo."],
       ["kie image <modelo> --prompt … [opts]", "Generar una imagen, esperar, descargar."],
@@ -307,6 +330,7 @@ const es: typeof en = {
       ["kie ledger [--limit 20]", "Registro local de gasto con creditsConsumed reales."],
       ["kie config set <clave> <valor>", "dailyBudget · maxCreditsPerTask · outDir · pollSeconds · waitTimeoutSeconds"],
       ["kie skill install [--agent claude|codex|cursor|gemini|all]", "Instalar el skill kie-media (--project para el repo actual)."],
+      ["kie mcp · kie mcp install [--app claude|codex|cursor|all]", "Servidor MCP por stdio para apps de escritorio; install lo registra en Claude Desktop / Codex / Cursor."],
     ],
     flags: [
       ["--prompt <texto>", "El prompt."],
@@ -332,7 +356,7 @@ const es: typeof en = {
   faq: {
     eyebrow: "Preguntas frecuentes",
     items: [
-      { q: "¿Funciona en Linux o Windows?", a: "Sí. Sin Keychain, la key se guarda en ~/.config/kie/key con permisos 0600. Todo lo demás es idéntico." },
+      { q: "¿Funciona en Linux o Windows?", a: "Sí. La key va a DPAPI de Windows (ámbito de usuario) o al Secret Service de Linux (secret-tool); sin ninguno de los dos cae a ~/.config/kie/key con permisos 0600. Todo lo demás es idéntico." },
       { q: "¿Cómo se construye el paquete de npm?", a: "Cada release la publica GitHub Actions desde un tag de git, con provenance de npm: el tarball queda vinculado criptográficamente al commit que lo produjo. Cero dependencias en runtime: lo que auditas es lo que corre." },
       { q: "¿Y si un modelo no está en el catálogo?", a: "kie run <model-id> --input '{…}' --max-credits N envía cualquier modelo del Market de KIE. Revisa el schema en docs.kie.ai primero, o usa --dry-run." },
       { q: "¿Puedo usarlo sin un agente?", a: "Claro. En la terminal muestra tablas, paneles y un spinner en vivo; si haces pipe obtienes JSON." },

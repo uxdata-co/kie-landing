@@ -12,8 +12,8 @@ const { lang } = Astro.props;
 const s = t(lang);
 const docsHref = localePath(lang, "/docs");
 const home = localePath(lang);
-const TUT_AGENTS = ["claude", "codex", "cursor", "gemini"] as const;
-const ICON: Record<string, string> = { claude: "claude", codex: "openai", cursor: "cursor", gemini: "gemini" };
+const TUT_AGENTS = ["claude", "codex", "cursor", "gemini", "desktop"] as const;
+const ICON: Record<string, string> = { claude: "claude", codex: "openai", cursor: "cursor", gemini: "gemini", desktop: "claude" };
 const installCmd = "npm i -g @uxdata-co/kie";
 const code = (x: string) => x.replace(/`([^`]+)`/g, "<code>$1</code>");
 ---

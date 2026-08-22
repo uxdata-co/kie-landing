@@ -16,6 +16,7 @@ export interface DocsCopy {
     guard: { h: string; p: string; checks: string[]; exitH: string; exit: [string, string][] };
     config: { h: string; p: string; rows: [string, string, string][]; code: string };
     skill: { h: string; p: string; code: string; agents: { name: string; icon: string; path: string; invoke: string; note: string }[]; alt: string };
+    mcp: { h: string; p: string; code: string; tools: [string, string][]; notes: string[] };
     output: { h: string; p: string; code: string };
     security: { h: string; items: string[] };
     faq: { h: string };
@@ -43,7 +44,7 @@ const en: DocsCopy = {
       p: "Create a dedicated key for agents at kie.ai/api-key and set hourly/daily caps plus an IP allow-list there — KIE enforces those even if this CLI is bypassed. KIE is prepaid: keep a modest balance.",
       steps: ["`kie key set` — paste the key, input is hidden.", "`kie key check` — source, masked key, validity, balance.", "`kie key delete` — remove it from the keystore."],
       code: "kie key set\nkie key check",
-      keyOrder: "Resolution order: `KIE_API_KEY` only when `KIE_ALLOW_ENV_KEY=1` → macOS Keychain (service `kie-cli`) → `~/.config/kie/key` (0600). `KIE_DISABLE_KEYCHAIN=1` forces the file. The key never appears in stdout, stderr, the ledger or the config.",
+      keyOrder: "Resolution order: `KIE_API_KEY` only when `KIE_ALLOW_ENV_KEY=1` → the OS keystore (macOS Keychain service `kie-cli` · Windows DPAPI, user scope · Linux Secret Service via `secret-tool`) → `~/.config/kie/key` (0600). `KIE_DISABLE_KEYCHAIN=1` forces the file. System tools are called by absolute path and the secret never goes on a command line. The key never appears in stdout, stderr, the ledger or the config.",
     },
     commands: { h: "Commands", p: "Generation commands wait for the task, download the result and settle the ledger unless you pass `--no-wait`." },
     flags: { h: "Generation flags", p: "Generic flags are mapped to each model's input fields by the catalog; `--set` passes any raw field through." },
@@ -88,6 +89,26 @@ const en: DocsCopy = {
       ],
       alt: "Without the CLI: `npx skills add julio-daza/kie-cli` (skills.sh) installs the same folder for any supported agent.",
     },
+    mcp: {
+      h: "MCP server (desktop apps)",
+      p: "Claude Desktop and the Codex app run the agent's shells in a sandbox — no PATH, no keystore, no network to api.kie.ai — so the skill cannot run there. `kie mcp` is a tools-only MCP server over stdio that the app spawns on your machine: the key stays in the keystore, the app only receives results, and generated images are returned inline so they show in the chat. It reuses the CLI's catalog, spend guard and ledger, so the daily budget is shared.",
+      code: "kie mcp install                # Claude Desktop + Codex + Cursor\nkie mcp install --app claude   # one of: claude | codex | cursor\nkie mcp config                 # print the JSON snippet for manual setup",
+      tools: [
+        ["kie_credits", "Balance and today's spend vs the daily budget."],
+        ["kie_models", "Curated models and the flags they support."],
+        ["kie_generate_image", "Generate, wait, download; returns the path and the image (≤ 1.5 MB) inline."],
+        ["kie_generate_video", "Same for video; `max_credits` is required."],
+        ["kie_task_status · kie_wait_task", "Poll once / wait and download."],
+        ["kie_upload", "Local file → temporary KIE URL for refs."],
+        ["kie_ledger", "Real credits consumed per task."],
+      ],
+      notes: [
+        "stdio only, on purpose: a network server holding a paid key is exactly what this project avoids.",
+        "The config is written with the absolute Node binary and script path, because GUI apps do not inherit your shell PATH (nvm, volta…).",
+        "Configs: macOS `~/Library/Application Support/Claude/claude_desktop_config.json`, `~/.codex/config.toml`, `~/.cursor/mcp.json`. Restart the app after installing.",
+        "Claude Code can use it too: `claude mcp add kie -- <node> <path-to-kie>/dist/src/index.js mcp` (the skill is usually enough there).",
+      ],
+    },
     output: {
       h: "Output contract",
       p: "When stdout is a terminal you get tables, panels and a live spinner. When piped, or with `--json`, stdout is strictly JSON and messages go to stderr — that is what agents should use. `--pretty` forces the human view; `--no-color` or `NO_COLOR` disables ANSI.",
@@ -128,7 +149,7 @@ const es: DocsCopy = {
       p: "Crea una key dedicada para agentes en kie.ai/api-key y ponle ahí topes por hora/día más una lista blanca de IPs — KIE los aplica aunque alguien se salte esta CLI. KIE es prepago: mantén un saldo moderado.",
       steps: ["`kie key set` — pega la key, la entrada está oculta.", "`kie key check` — origen, key enmascarada, validez, saldo.", "`kie key delete` — la elimina del almacén."],
       code: "kie key set\nkie key check",
-      keyOrder: "Orden de resolución: `KIE_API_KEY` solo con `KIE_ALLOW_ENV_KEY=1` → Keychain de macOS (servicio `kie-cli`) → `~/.config/kie/key` (0600). `KIE_DISABLE_KEYCHAIN=1` fuerza el archivo. La key nunca aparece en stdout, stderr, el ledger ni la config.",
+      keyOrder: "Orden de resolución: `KIE_API_KEY` solo con `KIE_ALLOW_ENV_KEY=1` → el llavero del sistema (Keychain de macOS, servicio `kie-cli` · DPAPI de Windows, ámbito de usuario · Secret Service de Linux vía `secret-tool`) → `~/.config/kie/key` (0600). `KIE_DISABLE_KEYCHAIN=1` fuerza el archivo. Las herramientas del sistema se invocan por ruta absoluta y el secreto nunca va en una línea de comandos. La key nunca aparece en stdout, stderr, el ledger ni la config.",
     },
     commands: { h: "Comandos", p: "Los comandos de generación esperan la tarea, descargan el resultado y cierran el ledger, salvo que pases `--no-wait`." },
     flags: { h: "Flags de generación", p: "El catálogo traduce los flags genéricos a los campos de entrada de cada modelo; `--set` pasa cualquier campo crudo." },
@@ -172,6 +193,26 @@ const es: DocsCopy = {
         { name: "Gemini CLI", icon: "gemini", path: "~/.gemini/skills/kie-media", invoke: "auto (activate_skill) · /skills list", note: "Pide consentimiento la primera vez. También lee ~/.agents/skills." },
       ],
       alt: "Sin la CLI: `npx skills add julio-daza/kie-cli` (skills.sh) instala la misma carpeta para cualquier agente soportado.",
+    },
+    mcp: {
+      h: "Servidor MCP (apps de escritorio)",
+      p: "Claude Desktop y la app de Codex ejecutan los shells del agente en un sandbox — sin PATH, sin llavero, sin red hacia api.kie.ai — así que el skill no puede correr ahí. `kie mcp` es un servidor MCP solo de tools por stdio que la app lanza en tu máquina: la key se queda en el llavero, la app solo recibe resultados, y las imágenes generadas vuelven inline para verse en el chat. Reusa el catálogo, la guardia de gasto y el ledger de la CLI, así que el presupuesto diario es compartido.",
+      code: "kie mcp install                # Claude Desktop + Codex + Cursor\nkie mcp install --app claude   # uno de: claude | codex | cursor\nkie mcp config                 # imprime el snippet JSON para configurarlo a mano",
+      tools: [
+        ["kie_credits", "Saldo y gasto de hoy contra el presupuesto diario."],
+        ["kie_models", "Modelos curados y los flags que soportan."],
+        ["kie_generate_image", "Genera, espera, descarga; devuelve la ruta y la imagen (≤ 1.5 MB) inline."],
+        ["kie_generate_video", "Lo mismo para video; `max_credits` es obligatorio."],
+        ["kie_task_status · kie_wait_task", "Una consulta / esperar y descargar."],
+        ["kie_upload", "Archivo local → URL temporal de KIE para referencias."],
+        ["kie_ledger", "Créditos reales consumidos por tarea."],
+      ],
+      notes: [
+        "Solo stdio, a propósito: un servidor de red que sostiene una key de pago es justo lo que este proyecto evita.",
+        "La config se escribe con el binario de Node y la ruta del script absolutos, porque las apps GUI no heredan el PATH de tu shell (nvm, volta…).",
+        "Configs: macOS `~/Library/Application Support/Claude/claude_desktop_config.json`, `~/.codex/config.toml`, `~/.cursor/mcp.json`. Reinicia la app después de instalar.",
+        "Claude Code también puede usarlo: `claude mcp add kie -- <node> <ruta-a-kie>/dist/src/index.js mcp` (ahí normalmente basta con el skill).",
+      ],
     },
     output: {
       h: "Contrato de salida",
