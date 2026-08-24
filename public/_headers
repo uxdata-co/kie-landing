@@ -1,0 +1,61 @@
+# Cloudflare Pages headers. Link relations follow RFC 8288 / RFC 9727 §3 so an
+# agent that only reads response headers can still find the machine-readable
+# entry points.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Link: </skill.md>; rel="describedby"; type="text/markdown"; title="Agent operating guide"
+  Link: </llms.txt>; rel="alternate"; type="text/markdown"; title="Site overview for LLMs"
+  Link: </llms-full.txt>; rel="alternate"; type="text/markdown"; title="Full documentation"
+  Link: </.well-known/agent-skills/index.json>; rel="service-desc"; type="application/json"; title="Agent Skills discovery index"
+  Link: </.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"; title="MCP server card"
+  Link: </.well-known/ai-catalog.json>; rel="service-desc"; type="application/json"; title="ARD capability manifest"
+  Link: </docs>; rel="service-doc"; type="text/html"; title="Documentation"
+  Link: </auth.md>; rel="author"; type="text/markdown"; title="Authentication"
+  Link: </sitemap.xml>; rel="sitemap"; type="application/xml"
+
+# Machine-readable resources: correct type, and readable cross-origin so a
+# browser-based agent can fetch them.
+/.well-known/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600
+
+/.well-known/agent-skills/index.json
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/mcp.json
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/mcp/server-card.json
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/ai-catalog.json
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/agent-skills/kie-media/SKILL.md
+  Content-Type: text/markdown; charset=utf-8
+
+/skill.md
+  Content-Type: text/markdown; charset=utf-8
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600
+
+/auth.md
+  Content-Type: text/markdown; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/llms.txt
+  Content-Type: text/markdown; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/llms-full.txt
+  Content-Type: text/markdown; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/robots.txt
+  Content-Type: text/plain; charset=utf-8

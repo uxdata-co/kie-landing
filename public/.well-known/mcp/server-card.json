@@ -1,0 +1,69 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/draft/server-card.json",
+  "serverInfo": {
+    "name": "kie",
+    "title": "kie — KIE.ai media generation",
+    "version": "1.4.0",
+    "description": "Generate images and video on KIE.ai from a desktop AI app. The KIE API key stays in the OS keystore on the user's machine; the app receives only results and local file paths. Per-task cap, daily budget and balance are checked before any request is sent.",
+    "websiteUrl": "https://kiecli.com",
+    "documentationUrl": "https://kiecli.com/docs#mcp",
+    "repositoryUrl": "https://github.com/julio-daza/kie-cli"
+  },
+  "protocolVersion": "2025-06-18",
+  "transport": {
+    "type": "stdio",
+    "command": "kie",
+    "args": [
+      "mcp"
+    ],
+    "install": "npm i -g @uxdata-co/kie && kie key set && kie mcp install",
+    "note": "Local stdio only, by design. There is no remote endpoint: a network server holding a paid media API key is the risk this project removes. `kie mcp install` registers it in Claude Desktop, the Codex app and Cursor."
+  },
+  "capabilities": {
+    "tools": {
+      "listChanged": false
+    },
+    "resources": false,
+    "prompts": false,
+    "logging": {}
+  },
+  "tools": [
+    {
+      "name": "kie_credits",
+      "description": "Balance and today's spend against the daily budget."
+    },
+    {
+      "name": "kie_models",
+      "description": "Curated image and video models, and the flags each one supports."
+    },
+    {
+      "name": "kie_generate_image",
+      "description": "Generate an image, wait, download it; returns the local path plus the image inline (≤ 1.5 MB)."
+    },
+    {
+      "name": "kie_generate_video",
+      "description": "Generate a video, wait, download it. `max_credits` is required."
+    },
+    {
+      "name": "kie_task_status",
+      "description": "Poll a task once, without downloading."
+    },
+    {
+      "name": "kie_wait_task",
+      "description": "Wait for a task to finish, then download the result."
+    },
+    {
+      "name": "kie_upload",
+      "description": "Upload a local file and return a temporary KIE URL for use as a reference."
+    },
+    {
+      "name": "kie_ledger",
+      "description": "Real credits consumed, per task."
+    }
+  ],
+  "authentication": {
+    "type": "none",
+    "note": "The MCP client never handles a credential. The KIE API key is provisioned by the human with `kie key set` and read from the OS keystore by the server process. See /auth.md."
+  },
+  "license": "MIT"
+}

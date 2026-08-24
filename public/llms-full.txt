@@ -1,0 +1,327 @@
+# kie — complete documentation
+
+> The zero-dependency CLI that lets AI agents generate images and video on
+> [KIE.ai](https://kie.ai) without ever seeing the API key, and never spending
+> more than you allow. MIT licensed. Homepage: https://kiecli.com — source:
+> https://github.com/julio-daza/kie-cli — package: `@uxdata-co/kie`.
+>
+> Agents: the operating guide is at https://kiecli.com/skill.md. This file is
+> the exhaustive reference behind it.
+
+This is an independent community project. It is **not** affiliated with,
+endorsed by, or supported by KIE.ai. "KIE" and the KIE logo are trademarks of
+their respective owner and are used only to identify the service the tool
+talks to.
+
+---
+
+## Why it exists
+
+Media APIs are the most expensive credentials to leak: one leaked key can burn
+hundreds of dollars of video generation in an afternoon. Most KIE integrations
+read the key from an environment variable, pull in hundreds of npm packages,
+and ship a default webhook. `kie` is built on the opposite assumptions:
+
+- **Key in the OS keystore** — macOS Keychain, Windows DPAPI, Linux Secret
+  Service, with a `0600` file only as a fallback. Environment variables require
+  an explicit opt-in. Every byte of output passes through a redactor.
+- **Hard spend cap** — a per-task cap, a daily budget backed by a ledger of
+  real credits consumed, and a balance check, all evaluated before the request
+  leaves your machine.
+- **No third parties** — the CLI talks only to KIE's own hosts. It never sends
+  a `callBackUrl`. No telemetry, no proxies.
+- **Agent-native** — strict JSON on stdout, exit codes you can branch on, and
+  always local file paths, never URLs that expire.
+- **Auditable** — zero runtime dependencies, ~700 lines, 58 network-free tests
+  on Node 20 and 22, published from GitHub Actions with npm provenance.
+
+---
+
+## Install
+
+Node ≥ 20. The package has zero runtime dependencies and is published from
+GitHub Actions with npm provenance.
+
+```bash
+npm i -g @uxdata-co/kie
+kie version
+npm audit signatures   # optional: verify the tarball came from the repo
+```
+
+From source: clone `julio-daza/kie-cli`, then
+`cd kie && npm install && npm run build && npm link`.
+
+---
+
+## API key
+
+Create a **dedicated key for agents** at kie.ai/api-key and set hourly/daily
+caps plus an IP allow-list there — KIE enforces those even if this CLI is
+bypassed. KIE is prepaid: keep a modest balance.
+
+```bash
+kie key set      # paste the key, input is hidden
+kie key check    # source, masked key, validity, balance
+kie key delete   # remove it from the keystore
+```
+
+**Resolution order:** `KIE_API_KEY` (only when `KIE_ALLOW_ENV_KEY=1`) → the OS
+keystore (macOS Keychain, service `kie-cli` · Windows DPAPI, user scope · Linux
+Secret Service via `secret-tool`) → `~/.config/kie/key` with `0600`
+permissions. `KIE_DISABLE_KEYCHAIN=1` forces the file.
+
+System keystore tools are invoked by absolute path and the secret never appears
+on a command line. The key never appears in stdout, stderr, the ledger or the
+config.
+
+Agents must never ask for, echo, or set the key. If `kie key check` fails, tell
+the user to run `kie key set` themselves.
+
+---
+
+## Commands
+
+Generation commands wait for the task, download the result and settle the
+ledger, unless you pass `--no-wait`.
+
+| Command | What it does |
+|---|---|
+| `kie key set\|check\|delete` | Store the API key (Keychain · DPAPI · Secret Service · 0600 file), verify it, remove it. |
+| `kie credits` | Balance plus today's spend against the daily budget. |
+| `kie models [--kind image\|video]` | Curated catalog with the flags each model supports. |
+| `kie image <model> --prompt … [opts]` | Generate an image, wait, download. |
+| `kie video <model> --prompt … [opts]` | Generate a video, wait, download. |
+| `kie run <model-id> --input '{…}' --max-credits N` | Escape hatch for any KIE Market model. |
+| `kie status <taskId>` | One poll, no download. |
+| `kie wait <taskId> [--out dir]` | Poll until done, download, settle the ledger. |
+| `kie upload <file>` | Local file → temporary URL for `--ref` / `--image` (KIE deletes it after ~3 days). |
+| `kie ledger [--limit 20]` | Local spend log with real `creditsConsumed`. |
+| `kie config set <key> <value>` | `dailyBudget` · `maxCreditsPerTask` · `outDir` · `pollSeconds` · `waitTimeoutSeconds` |
+| `kie skill install [--agent claude\|codex\|cursor\|gemini\|all]` | Install the `kie-media` agent skill (`--project` for the current repo). |
+| `kie mcp` · `kie mcp install [--app claude\|codex\|cursor\|all]` | MCP server on stdio for desktop apps; `install` registers it in Claude Desktop / Codex / Cursor. |
+
+---
+
+## Generation flags
+
+Generic flags are mapped to each model's input fields by the catalog; `--set`
+passes any raw field through.
+
+| Flag | Meaning |
+|---|---|
+| `--prompt <text>` | The prompt. |
+| `--ref <url>` | Reference image, repeatable (edit / style / multimodal reference). |
+| `--image <url>` / `--end-image <url>` | First and last frame for video. |
+| `--aspect`, `--resolution`, `--duration` | `16:9` · `1K\|2K\|4K\|720p` · seconds. |
+| `--sound`, `--fast`, `--format` | Native audio · cheaper variant · `png\|jpg`. |
+| `--set key=value` | Raw model field, repeatable. `callBackUrl` is rejected. |
+| `--max-credits <n>` | Accept spending up to *n* credits on this task. |
+| `--dry-run` | Print the exact request, send nothing. |
+| `--out <dir>`, `--name <base>`, `--no-wait` | Where files go · base filename · submit and return. |
+| `--json`, `--pretty`, `--no-color`, `--quiet` | Output control. JSON is automatic when piped. |
+
+---
+
+## Model catalog
+
+Aliases you type → KIE model ids. Only `nano-banana-2` has a verified credit
+estimate; every other model requires `--max-credits`.
+
+| Alias | Kind | Notes |
+|---|---|---|
+| `nano-banana-2` | image | Google Nano Banana 2 — generate + edit with up to 14 refs. Est. 1K = 8 · 2K = 12 · 4K = 18 credits. |
+| `seedream-v4` | image | ByteDance Seedream V4 — text-to-image, switches to edit mode with `--ref`. |
+| `kling-3.0` | video | Kling 3.0 — 3–15 s, native audio, `--set mode=pro`. |
+| `seedance-2.5` | video | ByteDance Seedance 2.5 — frames or multimodal refs, 4–30 s. |
+| `minimax-h3` | video | MiniMax H3 — sub-model chosen from your flags (text / image / reference). |
+| `veo3` | video | Google Veo 3 — own endpoint, `--fast` for `veo3_fast`. |
+
+Any KIE Market model that is not in the catalog:
+
+```bash
+kie run <vendor>/<model> --input '{"prompt":"…"}' --max-credits 30 --dry-run
+kie run <vendor>/<model> --input '{"prompt":"…"}' --max-credits 30
+```
+
+---
+
+## Spend guard and exit codes
+
+Evaluated before any request leaves the machine. If it blocks, the exit code is
+`3` and nothing was sent.
+
+1. **Per-task cap** — models with a verified estimate are checked against
+   `maxCreditsPerTask`; everything else needs an explicit `--max-credits <n>`.
+2. **Daily budget** — `~/.config/kie/ledger.jsonl` records every task; on
+   completion the real `creditsConsumed` is written back. Pending tasks count
+   at their cap.
+3. **Balance** — the estimate (or cap) must fit in the account's remaining
+   credits.
+
+| Exit code | Meaning |
+|---|---|
+| `0` | Success. |
+| `1` | Task failed on KIE's side — **not charged**. |
+| `2` | Usage error. |
+| `3` | Blocked by the spend guard — nothing was sent. |
+| `4` | Timed out — the task is still running; `kie wait <taskId>`. |
+| `5` | API / auth error. |
+
+---
+
+## Configuration
+
+`~/.config/kie/config.json` (or `$KIE_CONFIG_DIR`). Read it with `kie config`,
+change it with `kie config set <key> <value>`.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `dailyBudget` | `200` | Max credits per UTC day across all runs (≈ US$1 at $0.005/credit). |
+| `maxCreditsPerTask` | `50` | Per-task cap for models with a known estimate. |
+| `outDir` | `./kie-media` | Where results are downloaded. |
+| `pollSeconds` | `5` | Poll interval while waiting. |
+| `waitTimeoutSeconds` | `900` | Stop waiting after this; the task keeps running on KIE. |
+
+```bash
+kie config
+kie config set dailyBudget 300
+```
+
+---
+
+## Agent skill (kie-media)
+
+The package ships an Agent Skills–spec skill that teaches coding agents to use
+the CLI: check the budget first, images before video, always cap video spend,
+return file paths, never touch the key.
+
+```bash
+kie skill install                  # all four agents
+kie skill install --agent claude   # one of: claude | codex | cursor | gemini
+kie skill install --project        # into the current repo, for the team
+kie skill install --force          # overwrite an older copy
+```
+
+| Agent | Installed at | Invoke |
+|---|---|---|
+| Claude Code | `~/.claude/skills/kie-media` | `/kie-media` — CLI, desktop app and IDE extension; skills are discovered at session start. |
+| Codex | `~/.agents/skills/kie-media` | `$kie-media` · `/skills` — CLI, IDE extension and desktop app. |
+| Cursor | `~/.cursor/skills/kie-media` | `/` in Agent chat — Cursor 2.4+; also reads `~/.agents/skills`. |
+| Gemini CLI | `~/.gemini/skills/kie-media` | auto (`activate_skill`) · `/skills list` — asks for consent the first time. |
+
+Without the CLI: `npx skills add julio-daza/kie-cli` (skills.sh) installs the
+same folder for any supported agent. The skill is also published for direct
+fetch at https://kiecli.com/.well-known/agent-skills/kie-media/SKILL.md and
+indexed at https://kiecli.com/.well-known/agent-skills/index.json.
+
+---
+
+## MCP server (desktop apps)
+
+Claude Desktop and the Codex app run the agent's shells in a sandbox — no PATH,
+no keystore, no network to `api.kie.ai` — so the skill cannot run there.
+`kie mcp` is a tools-only MCP server over stdio that the app spawns on your
+machine: the key stays in the keystore, the app only receives results, and
+generated images are returned inline so they show in the chat. It reuses the
+CLI's catalog, spend guard and ledger, so the daily budget is shared.
+
+```bash
+kie mcp install                # Claude Desktop + Codex + Cursor
+kie mcp install --app claude   # one of: claude | codex | cursor
+kie mcp config                 # print the JSON snippet for manual setup
+```
+
+| Tool | What it does |
+|---|---|
+| `kie_credits` | Balance and today's spend vs the daily budget. |
+| `kie_models` | Curated models and the flags they support. |
+| `kie_generate_image` | Generate, wait, download; returns the path and the image (≤ 1.5 MB) inline. |
+| `kie_generate_video` | Same for video; `max_credits` is required. |
+| `kie_task_status` · `kie_wait_task` | Poll once / wait and download. |
+| `kie_upload` | Local file → temporary KIE URL for refs. |
+| `kie_ledger` | Real credits consumed per task. |
+
+Notes:
+
+- stdio only, on purpose: a network server holding a paid key is exactly what
+  this project avoids.
+- The config is written with the absolute Node binary and script path, because
+  GUI apps do not inherit your shell PATH (nvm, volta…).
+- Configs: macOS `~/Library/Application Support/Claude/claude_desktop_config.json`,
+  `~/.codex/config.toml`, `~/.cursor/mcp.json`. Restart the app after installing.
+- Claude Code can use it too:
+  `claude mcp add kie -- <node> <path-to-kie>/dist/src/index.js mcp` (the skill
+  is usually enough there).
+
+---
+
+## Output contract
+
+When stdout is a terminal you get tables, panels and a live spinner. When
+piped, or with `--json`, stdout is strictly JSON and messages go to stderr —
+that is what agents should use. `--pretty` forces the human view; `--no-color`
+or `NO_COLOR` disables ANSI.
+
+```bash
+kie image nano-banana-2 --prompt "…" --json
+```
+
+```json
+{
+  "taskId": "task_…",
+  "model": "nano-banana-2",
+  "state": "success",
+  "creditsConsumed": 8,
+  "files": ["kie-media/nano-banana-2-c0ffee12.png"]
+}
+```
+
+Always read `files` — never `resultUrls`, which expire in about 24 hours.
+
+---
+
+## Security notes
+
+- The CLI talks only to `api.kie.ai`, `kieai.redpandaai.co` (KIE's upload host)
+  and the result URLs KIE returns.
+- It never sends a `callBackUrl`; `--set callBackUrl=…` and
+  `--input {"callBackUrl":…}` are rejected.
+- Results are always downloaded — KIE URLs expire in ~24 h — and the CLI
+  returns paths, not links.
+- Uploads via `kie upload` land in KIE's temporary storage and are deleted
+  after ~3 days.
+- Report vulnerabilities privately through GitHub Security Advisories (see
+  SECURITY.md).
+
+---
+
+## FAQ
+
+**Does it work on Linux or Windows?**
+Yes. The key goes to Windows DPAPI (user scope) or the Linux Secret Service
+(`secret-tool`); without either it falls back to `~/.config/kie/key` with
+`0600` permissions. Everything else is identical.
+
+**How is the npm package built?**
+Every release is published by GitHub Actions from a git tag, with npm
+provenance: the tarball is cryptographically linked to the commit that produced
+it. Zero runtime dependencies, so what you audit is what runs.
+
+**What if a model isn't in the catalog?**
+`kie run <model-id> --input '{…}' --max-credits N` sends any KIE Market model.
+Check the schema on docs.kie.ai first, or use `--dry-run`.
+
+**Can I use it without an agent?**
+Of course. In a terminal it renders tables, panels and a live spinner; pipe it
+and you get JSON.
+
+---
+
+## Links
+
+- Homepage: https://kiecli.com
+- Agent operating guide: https://kiecli.com/skill.md
+- Human documentation: https://kiecli.com/docs (Spanish: https://kiecli.com/es/docs)
+- Source: https://github.com/julio-daza/kie-cli
+- Package: https://www.npmjs.com/package/@uxdata-co/kie
+- License: MIT

@@ -1,0 +1,49 @@
+---
+import Base from "../layouts/Base.astro";
+import { localePath } from "../i18n/ui";
+
+// A real 404 document. Without one, Pages answered every unknown path with the
+// homepage and a 200, which makes an agent believe resources exist that do not.
+---
+
+<Base lang="en" path="/" title="404 — page not found · kie" description="That page does not exist on kiecli.com.">
+  <section class="notfound">
+    <div class="rails">
+      <p class="eyebrow">404</p>
+      <h1>That page does not exist.</h1>
+      <p class="lead">
+        The link may be out of date. Everything the CLI does lives on one page.
+      </p>
+      <p class="links">
+        <a href={localePath("en")} class="btn btn-brand">Home</a>
+        <a href={localePath("en", "/docs")} class="btn">Documentation</a>
+      </p>
+      <p class="agent mono">
+        Agent? Read <a href="/skill.md">kiecli.com/skill.md</a> — the complete operating guide.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    padding-block: clamp(80px, 18vh, 180px) 120px;
+  }
+  h1 {
+    margin-block: 8px 16px;
+  }
+  .links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .agent {
+    margin-top: 40px;
+    font-size: 13.5px;
+    color: var(--fg-muted);
+  }
+  .agent a {
+    color: var(--brand);
+  }
+</style>

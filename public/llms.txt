@@ -1,0 +1,54 @@
+# kie — KIE.ai media generation CLI for agents
+
+> `kie` is a zero-runtime-dependency command-line tool that lets an AI agent
+> generate images and video on [KIE.ai](https://kie.ai) without ever seeing the
+> API key, and without ever spending more than the user allowed. The key lives
+> in the OS keystore; a per-task cap, a daily budget and a balance check run
+> before any request leaves the machine. Results are downloaded to disk and
+> returned as file paths, never as URLs that expire. MIT licensed,
+> ~700 auditable lines, published from CI with npm provenance.
+
+Install: `npm i -g @uxdata-co/kie` (Node ≥ 20) → `kie key set` → `kie skill install`.
+
+**If you are an agent, read [/skill.md](https://kiecli.com/skill.md) first.** It is
+a complete, self-contained operating guide: preflight, model choice, the spend
+guard, exit codes and the full command surface. Nothing else is required.
+
+## For agents
+
+- [Agent skill — full operating guide](https://kiecli.com/skill.md): install, budget checks, model selection, `--json` contract, exit codes, worked examples.
+- [Agent Skills discovery index](https://kiecli.com/.well-known/agent-skills/index.json): the `kie-media` skill, per the Agent Skills Discovery RFC v0.2.0.
+- [MCP server card](https://kiecli.com/.well-known/mcp/server-card.json): the stdio MCP server (`kie mcp`) for desktop apps, and the tools it exposes.
+- [Capability manifest](https://kiecli.com/.well-known/ai-catalog.json): every machine-readable resource on this host (ARD / ai-catalog).
+- [Authentication](https://kiecli.com/auth.md): why there is no OAuth, and how the API key is provisioned by the human, not the agent.
+
+## Documentation
+
+- [Full documentation in one file](https://kiecli.com/llms-full.txt): every command, flag, config key, exit code and security note.
+- [Docs — install](https://kiecli.com/docs#install): Node ≥ 20, npm provenance, building from source.
+- [Docs — API key](https://kiecli.com/docs#key): keystore resolution order, per-key caps and IP allow-lists on kie.ai.
+- [Docs — commands and flags](https://kiecli.com/docs#commands): generation commands, generic flags and the `--set` escape hatch.
+- [Docs — model catalog](https://kiecli.com/docs#catalog): aliases → KIE model ids, and `kie run` for anything else on the Market.
+- [Docs — spend guard and exit codes](https://kiecli.com/docs#guard): the three checks, the ledger, and what each exit code means.
+- [Docs — configuration](https://kiecli.com/docs#config): `dailyBudget`, `maxCreditsPerTask`, `outDir`, polling and timeouts.
+- [Docs — agent skill](https://kiecli.com/docs#skill): `kie skill install` for Claude Code, Codex, Cursor and Gemini CLI.
+- [Docs — MCP server](https://kiecli.com/docs#mcp): `kie mcp install` for Claude Desktop, the Codex app and Cursor.
+- [Docs — output contract](https://kiecli.com/docs#output): strict JSON on stdout when piped or with `--json`.
+
+## Models
+
+- Images: `nano-banana-2` (default — 1K ≈ 8 credits), `seedream-v4` (posters, text-heavy, edit mode via `--ref`).
+- Video: `kling-3.0` (3–15 s, native audio), `seedance-2.5` (image→video, up to 30 s), `minimax-h3` (consistent character from refs), `veo3` (cinematic; `--fast` is cheaper).
+- Anything else on the KIE Market: `kie run <vendor>/<model> --input '{…}' --max-credits N`.
+
+## Source
+
+- [GitHub repository](https://github.com/julio-daza/kie-cli): the CLI, its 58 network-free tests, and the `kie-media` skill.
+- [npm package `@uxdata-co/kie`](https://www.npmjs.com/package/@uxdata-co/kie): published from GitHub Actions with provenance.
+- [Security policy](https://github.com/julio-daza/kie-cli/blob/main/SECURITY.md) · [Changelog](https://github.com/julio-daza/kie-cli/blob/main/CHANGELOG.md) · [MIT License](https://github.com/julio-daza/kie-cli/blob/main/LICENSE)
+
+## Optional
+
+- [Spanish documentation](https://kiecli.com/es/docs) — the same reference in Spanish.
+- [Spanish homepage](https://kiecli.com/es/).
+- Note: this is an independent community project, not affiliated with or endorsed by KIE.ai.

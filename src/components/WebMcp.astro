@@ -1,0 +1,142 @@
+---
+/**
+ * WebMCP tool registration (https://webmachinelearning.github.io/webmcp/).
+ *
+ * A browser agent that lands on kiecli.com can call these instead of scraping
+ * the page. They are deliberately read-only and cheap: the expensive, paid
+ * operations live in the CLI on the user's own machine, behind their own
+ * spend guard, and must never be triggerable from a web page.
+ */
+---
+
+<script is:inline>
+  (function () {
+    var mc = navigator.modelContext;
+    if (!mc || typeof mc.registerTool !== "function") return;
+
+    var ORIGIN = "https://kiecli.com";
+
+    var MODELS = [
+      { alias: "nano-banana-2", kind: "image", notes: "Google Nano Banana 2 — generate and edit with up to 14 reference images. The default choice. Est. 1K=8, 2K=12, 4K=18 credits — the only model with a verified estimate.", command: 'kie image nano-banana-2 --prompt "…" --aspect 16:9 --json' },
+      { alias: "seedream-v4", kind: "image", notes: "ByteDance Seedream V4 — posters and text-heavy art; --ref switches it to edit mode. Requires --max-credits.", command: 'kie image seedream-v4 --prompt "…" --max-credits 20 --json' },
+      { alias: "kling-3.0", kind: "video", notes: "Kling 3.0 — 3–15 s with native audio. --set mode=pro for quality.", command: 'kie video kling-3.0 --prompt "…" --duration 5 --sound --max-credits 80 --json' },
+      { alias: "seedance-2.5", kind: "video", notes: "ByteDance Seedance 2.5 — image-to-video, first/last frame, 4–30 s. --resolution 480p for cheap drafts.", command: 'kie video seedance-2.5 --image <url> --prompt "…" --max-credits 80 --json' },
+      { alias: "minimax-h3", kind: "video", notes: "MiniMax H3 — consistent character across shots from reference images, 4–15 s.", command: 'kie video minimax-h3 --ref <url> --prompt "…" --max-credits 80 --json' },
+      { alias: "veo3", kind: "video", notes: "Google Veo 3 — highest-quality cinematic. --fast is cheaper; use 16:9 for 1080p.", command: 'kie video veo3 --prompt "…" --max-credits 120 --json' },
+    ];
+
+    var EXIT_CODES = {
+      "0": "Success. Report files[] and creditsConsumed to the user.",
+      "1": "KIE failed the task (see failMsg). Not charged — rephrase the prompt or switch model.",
+      "2": "Usage error — the command was built wrong.",
+      "3": "Blocked by the spend guard; nothing was sent. Quote the reason and ask before raising --max-credits.",
+      "4": "Timed out. The task is still running: kie wait <taskId> --out <dir> --json.",
+      "5": "API or auth error. Ask the user to run kie key check.",
+    };
+
+    function text(value) {
+      return { content: [{ type: "text", text: typeof value === "string" ? value : JSON.stringify(value, null, 2) }] };
+    }
+
+    mc.registerTool({
+      name: "kie_get_started",
+      description:
+        "Get everything needed to start generating images or video with the kie CLI: install command, how the API key is provisioned, and the URL of the full agent operating guide. Call this first.",
+      inputSchema: { type: "object", properties: {}, additionalProperties: false },
+      execute: function () {
+        return text({
+          what: "kie is a zero-dependency CLI that generates images and video on KIE.ai. The API key stays in the OS keystore; the agent never sees it. A per-task cap, a daily budget and a balance check run before any request is sent.",
+          install: "npm i -g @uxdata-co/kie",
+          requires: "Node >= 20",
+          keySetup: "The human runs `kie key set` themselves — never ask for, echo, or set the API key.",
+          verify: "kie key check && kie credits --json",
+          fullGuide: ORIGIN + "/skill.md",
+          reference: ORIGIN + "/llms-full.txt",
+          skillIndex: ORIGIN + "/.well-known/agent-skills/index.json",
+          installSkill: "kie skill install   # Claude Code, Codex, Cursor, Gemini CLI",
+          installMcp: "kie mcp install     # Claude Desktop, Codex app, Cursor (stdio)",
+          license: "MIT",
+        });
+      },
+    });
+
+    mc.registerTool({
+      name: "kie_list_models",
+      description:
+        "List the image and video models the kie CLI supports, with cost notes and a ready-to-run example command for each. Optionally filter by kind.",
+      inputSchema: {
+        type: "object",
+        properties: { kind: { type: "string", enum: ["image", "video"], description: "Only return models of this kind." } },
+        additionalProperties: false,
+      },
+      execute: function (args) {
+        var kind = args && args.kind;
+        var list = kind ? MODELS.filter(function (m) { return m.kind === kind; }) : MODELS;
+        return text({
+          models: list,
+          rule: "Only nano-banana-2 has a verified credit estimate. Every other model requires an explicit --max-credits <n>.",
+          catalogAtRuntime: "kie models --kind image|video --json",
+        });
+      },
+    });
+
+    mc.registerTool({
+      name: "kie_build_command",
+      description:
+        "Build the exact `kie` command line for a generation request, with the spend cap and JSON output already set. Returns the command to run on the user's own machine — this tool never generates anything and never spends credits.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          prompt: { type: "string", description: "What to generate." },
+          kind: { type: "string", enum: ["image", "video"], description: "Image or video. Default: image." },
+          model: { type: "string", description: "Model alias. Defaults to nano-banana-2 for images, kling-3.0 for video." },
+          aspect: { type: "string", description: 'Aspect ratio, e.g. "16:9".' },
+          maxCredits: { type: "number", description: "Ceiling in credits. Required for video and for any model without a verified estimate." },
+          outDir: { type: "string", description: "Directory for the downloaded result." },
+        },
+        required: ["prompt"],
+        additionalProperties: false,
+      },
+      execute: function (args) {
+        var kind = (args && args.kind) || "image";
+        var model = (args && args.model) || (kind === "video" ? "kling-3.0" : "nano-banana-2");
+        var quoted = String(args.prompt).replace(/"/g, '\\"');
+        var parts = ["kie", kind, model, '--prompt "' + quoted + '"'];
+        if (args.aspect) parts.push("--aspect " + args.aspect);
+        var needsCap = kind === "video" || model !== "nano-banana-2";
+        var cap = args.maxCredits || (kind === "video" ? 80 : 20);
+        if (needsCap || args.maxCredits) parts.push("--max-credits " + cap);
+        if (args.outDir) parts.push("--out " + args.outDir);
+        parts.push("--json");
+        return text({
+          command: parts.join(" "),
+          runWhere: "The user's own terminal, or a coding agent running on their machine. This page cannot run it.",
+          before: "kie credits --json   # check the remaining daily budget first",
+          capApplied: needsCap ? "Required: " + model + " has no verified estimate, so an explicit --max-credits is mandatory." : "Optional for nano-banana-2, which has a verified estimate.",
+          readResult: "Take the path from the JSON `files` array. Never use `resultUrls` — they expire in ~24 h.",
+          exitCodes: EXIT_CODES,
+          guide: ORIGIN + "/skill.md",
+        });
+      },
+    });
+
+    mc.registerTool({
+      name: "kie_explain_exit_code",
+      description: "Explain what a kie CLI exit code means and what to do about it.",
+      inputSchema: {
+        type: "object",
+        properties: { code: { type: "integer", description: "The exit code, 0–5." } },
+        required: ["code"],
+        additionalProperties: false,
+      },
+      execute: function (args) {
+        var key = String(args.code);
+        return text({
+          code: args.code,
+          meaning: EXIT_CODES[key] || "Unknown exit code. kie uses 0–5; see " + ORIGIN + "/skill.md",
+          allCodes: EXIT_CODES,
+        });
+      },
+    });
+  })();
+</script>

@@ -5,9 +5,10 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/gen-agent-manifests.mjs && astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "manifests": "node scripts/gen-agent-manifests.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^4.2.0",

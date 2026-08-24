@@ -1,0 +1,72 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "kie — KIE.ai media generation CLI",
+    "identifier": "did:web:kiecli.com",
+    "description": "Zero-dependency CLI that lets AI agents generate images and video on KIE.ai without ever seeing the API key, under hard spend limits.",
+    "url": "https://kiecli.com"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:kiecli.com:skill:kie-getting-started",
+      "displayName": "kie — agent operating guide",
+      "description": "Complete self-contained guide for an agent using the kie CLI: preflight, model choice, spend guard, exit codes and the full command surface.",
+      "type": "text/markdown",
+      "url": "https://kiecli.com/skill.md",
+      "representativeQueries": [
+        "how do I generate an image with the kie CLI",
+        "generate a 16:9 hero image without leaking my API key",
+        "what does exit code 3 mean in kie",
+        "how do I cap how many credits a video generation can cost"
+      ]
+    },
+    {
+      "identifier": "urn:air:kiecli.com:skill:kie-media",
+      "displayName": "kie-media agent skill",
+      "description": "Agent Skills–spec skill that teaches Claude Code, Codex, Cursor and Gemini CLI to generate images and video with the kie CLI under strict spend limits.",
+      "type": "text/markdown",
+      "url": "https://kiecli.com/.well-known/agent-skills/kie-media/SKILL.md",
+      "representativeQueries": [
+        "install a skill so my coding agent can generate images",
+        "which KIE model should I use for a short video clip with audio",
+        "generate a video from a reference image with Kling 3.0"
+      ]
+    },
+    {
+      "identifier": "urn:air:kiecli.com:server:kie-mcp",
+      "displayName": "kie MCP server (stdio)",
+      "description": "Local stdio MCP server exposing image and video generation, credits, uploads and the spend ledger to desktop AI apps.",
+      "type": "application/mcp-server-card+json",
+      "url": "https://kiecli.com/.well-known/mcp/server-card.json",
+      "representativeQueries": [
+        "MCP server for generating images in Claude Desktop",
+        "add KIE.ai video generation to Cursor",
+        "generate media from a desktop app without exposing my API key"
+      ]
+    },
+    {
+      "identifier": "urn:air:kiecli.com:doc:reference",
+      "displayName": "kie full documentation",
+      "description": "Every command, flag, model, config key, exit code and security note for the kie CLI, in a single Markdown file.",
+      "type": "text/markdown",
+      "url": "https://kiecli.com/llms-full.txt",
+      "representativeQueries": [
+        "kie CLI command reference",
+        "how do I change the kie daily budget",
+        "where does kie store the KIE.ai API key"
+      ]
+    },
+    {
+      "identifier": "urn:air:kiecli.com:doc:auth",
+      "displayName": "kie authentication model",
+      "description": "How credentials are provisioned and used: the human stores the KIE API key in the OS keystore, the agent never holds one. No OAuth.",
+      "type": "text/markdown",
+      "url": "https://kiecli.com/auth.md",
+      "representativeQueries": [
+        "how does an agent authenticate with kie",
+        "does kiecli support OAuth",
+        "where is the KIE API key stored"
+      ]
+    }
+  ]
+}

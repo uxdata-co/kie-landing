@@ -20,6 +20,17 @@ const en = {
     copied: "Copied",
     terminalTitle: "kie help",
   },
+  audience: {
+    label: "Are you an agent or a human?",
+    agent: "I'm an Agent",
+    human: "I'm a Human",
+    copy: "Copy",
+    copied: "Copied",
+    agentHint: "Send this prompt to your agent to generate media with kie",
+    agentSub: "A complete operating guide: install, spend limits, models, exit codes.",
+    humanHint: "Install the CLI — Node \u2265 20, zero runtime dependencies",
+    humanSub: "Then `kie key set` to store your key, and `kie skill install` to teach your agent.",
+  },
   agents: {
     label: "Works with",
     items: [
@@ -202,6 +213,17 @@ const es: typeof en = {
     copy: "Copiar",
     copied: "Copiado",
     terminalTitle: "kie help",
+  },
+  audience: {
+    label: "\u00bfEres un agente o una persona?",
+    agent: "Soy un agente",
+    human: "Soy humano",
+    copy: "Copiar",
+    copied: "Copiado",
+    agentHint: "Env\u00eda este prompt a tu agente para generar medios con kie",
+    agentSub: "Una gu\u00eda completa: instalaci\u00f3n, l\u00edmites de gasto, modelos y c\u00f3digos de salida.",
+    humanHint: "Instala la CLI \u2014 Node \u2265 20, cero dependencias en runtime",
+    humanSub: "Luego `kie key set` para guardar tu key, y `kie skill install` para tu agente.",
   },
   agents: {
     label: "Funciona con",

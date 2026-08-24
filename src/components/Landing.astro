@@ -2,6 +2,7 @@
 import MaskedHeading from "./MaskedHeading";
 import Icon from "./Icon.astro";
 import Terminal from "./Terminal.astro";
+import AudienceToggle from "./AudienceToggle.astro";
 import { guardTerminal, heroTerminal } from "./terminals";
 import { REPO, localePath, t, type Lang } from "../i18n/ui";
 
@@ -14,7 +15,6 @@ const docsHref = localePath(lang, "/docs");
 const home = localePath(lang);
 const TUT_AGENTS = ["claude", "codex", "cursor", "gemini", "desktop"] as const;
 const ICON: Record<string, string> = { claude: "claude", codex: "openai", cursor: "cursor", gemini: "gemini", desktop: "claude" };
-const installCmd = "npm i -g @uxdata-co/kie";
 const code = (x: string) => x.replace(/`([^`]+)`/g, "<code>$1</code>");
 ---
 
@@ -43,10 +43,7 @@ const code = (x: string) => x.replace(/`([^`]+)`/g, "<code>$1</code>");
           className="hero-title"
         />
         <p class="lead">{s.hero.sub}</p>
-        <div class="cmd">
-          <code>$ {installCmd}</code>
-          <button class="copy" data-copy={installCmd} data-copied={s.hero.copied} type="button">{s.hero.copy}</button>
-        </div>
+        <AudienceToggle lang={lang} />
         <a href={`${home}#tutorials`} class="chat-link">
           <span class="chat-dots" aria-hidden="true"><i></i><i></i><i></i></span>
           {s.hero.ctaSecondary}

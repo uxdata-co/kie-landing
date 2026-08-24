@@ -54,3 +54,49 @@ and Open Graph URLs derive from it).
 ## License
 
 MIT. "KIE" and its logo belong to their owner.
+
+## Agent-readiness surface
+
+The site is built to be consumed by AI agents, not just read by people. Verify
+with <https://isitagentready.com/kiecli.com>.
+
+| Resource | Path | Produced by |
+|---|---|---|
+| Crawl rules, content signals, sitemap + agentmap pointers | `/robots.txt` | `public/robots.txt` |
+| Sitemap (all locales, hreflang, agent resources) | `/sitemap.xml` | `src/pages/sitemap.xml.ts` — generated from the route list |
+| Agent operating guide (**the entry point**) | `/skill.md` | `public/skill.md` |
+| Site overview for LLMs | `/llms.txt` | `public/llms.txt` |
+| Full reference, single file | `/llms-full.txt` | `public/llms-full.txt` |
+| Authentication model | `/auth.md` | `public/auth.md` |
+| Agent Skills discovery index | `/.well-known/agent-skills/index.json` | `scripts/gen-agent-manifests.mjs` |
+| The `kie-media` skill | `/.well-known/agent-skills/kie-media/SKILL.md` | synced from `../code/skills/kie-media/` |
+| MCP server card (stdio) | `/.well-known/mcp/server-card.json`, `/.well-known/mcp.json` | `scripts/gen-agent-manifests.mjs` |
+| ARD capability manifest | `/.well-known/ai-catalog.json` | `scripts/gen-agent-manifests.mjs` |
+| `Link:` discovery headers (RFC 8288) | all responses | `public/_headers` |
+| `Accept: text/markdown` negotiation | `/`, `/docs` (+ `/es/*`) | `functions/_middleware.js` |
+| Real 404s for machine paths | `/.well-known/*`, `*.json|xml|md|txt` | `functions/_middleware.js` |
+| WebMCP browser tools | homepage + docs | `src/components/WebMcp.astro` |
+
+Two rules when editing:
+
+- **Never hand-write the digests** in `agent-skills/index.json`. They are SHA-256
+  hashes of `skill.md` and the published `SKILL.md`, regenerated on every build
+  by `npm run manifests`. A stale digest is worse than none — a verifying agent
+  would reject a good skill.
+- **Do not publish a manifest for something that does not exist.** There is no
+  OAuth server, no A2A agent and no HTTP API here, so those well-known paths
+  return a real 404 rather than a fabricated document. An agent that trusts a
+  fake manifest fails worse than one that gets an honest "not supported".
+
+### One manual step: DNS-AID
+
+The only agent-readiness check that cannot be fixed from this repo is DNS for AI
+Discovery, which needs records on the `kiecli.com` zone. In the Cloudflare
+dashboard, add:
+
+```dns
+_index._agents.kiecli.com.   3600 IN HTTPS 1 kiecli.com. alpn="h2,http/1.1"
+_catalog._agents.kiecli.com. 3600 IN TXT   "url=https://kiecli.com/.well-known/ai-catalog.json"
+```
+
+Enable DNSSEC on the zone so validating resolvers return authenticated data.

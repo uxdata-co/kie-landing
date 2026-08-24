@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import WebMcp from "../components/WebMcp.astro";
 import { LANGS, NPM, REPO, localePath, t, type Lang } from "../i18n/ui";
 
 interface Props {
@@ -29,6 +30,9 @@ const pageDescription = description ?? s.meta.description;
     <meta name="description" content={pageDescription} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
+    <link rel="ai-catalog" href="/.well-known/ai-catalog.json" type="application/json" />
+    <link rel="alternate" type="text/markdown" href="/llms.txt" title="Site overview for LLMs" />
+    <link rel="describedby" type="text/markdown" href="/skill.md" title="Agent operating guide" />
     <link rel="alternate" hreflang="en" href={new URL(localePath("en", path), site).toString()} />
     <link rel="alternate" hreflang="es" href={new URL(localePath("es", path), site).toString()} />
     <link rel="alternate" hreflang="x-default" href={new URL(localePath("en", path), site).toString()} />
@@ -44,6 +48,7 @@ const pageDescription = description ?? s.meta.description;
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <WebMcp />
   </head>
   <body>
     <header class="nav">
@@ -105,9 +110,15 @@ const pageDescription = description ?? s.meta.description;
           const text = btn.getAttribute("data-copy") ?? "";
           try {
             await navigator.clipboard.writeText(text);
-            const prev = btn.textContent;
-            btn.textContent = btn.getAttribute("data-copied") ?? "✓";
-            setTimeout(() => (btn.textContent = prev), 1400);
+            if (btn.childElementCount > 0) {
+              // Icon-only button: flash a state class instead of eating the SVG.
+              btn.classList.add("done");
+              setTimeout(() => btn.classList.remove("done"), 1400);
+            } else {
+              const prev = btn.textContent;
+              btn.textContent = btn.getAttribute("data-copied") ?? "✓";
+              setTimeout(() => (btn.textContent = prev), 1400);
+            }
           } catch {
             /* clipboard blocked; nothing to do */
           }

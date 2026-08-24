@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "kie-media",
+      "type": "skill-md",
+      "description": "Generate images and videos on KIE.ai (Nano Banana 2, Seedream V4, Kling 3.0, Seedance 2.5, MiniMax H3, Veo 3) with the kie CLI, under hard spend limits, and hand back local file paths. Use when the user asks to generate, create, render or edit an image, illustration, logo draft, mockup, poster, video clip, animation or b-roll, or mentions KIE, Kling, Veo, Seedance or Nano Banana.",
+      "url": "https://kiecli.com/.well-known/agent-skills/kie-media/SKILL.md",
+      "digest": "sha256:9be6200be3205b4c6c5193acb2f8f048311922801a33a6231b278794e9541b87",
+      "license": "MIT",
+      "homepage": "https://kiecli.com",
+      "version": "1.4"
+    },
+    {
+      "name": "kie-getting-started",
+      "type": "skill-md",
+      "description": "Install and operate the kie CLI from scratch: preflight checks, storing the KIE.ai API key in the OS keystore, the spend guard, exit codes, the full command surface, and how to install the skill or the stdio MCP server. Use when kie is not yet set up, or when a command exited non-zero and you need to interpret the code.",
+      "url": "https://kiecli.com/skill.md",
+      "digest": "sha256:61ac858778a5aa52933fe44ae356e5cb0228f21f3ff41e5d7fba5715eecec1f3",
+      "license": "MIT",
+      "homepage": "https://kiecli.com",
+      "version": "1.4"
+    }
+  ]
+}
