@@ -3,6 +3,7 @@ export type Lang = "en" | "es";
 export const LANGS: Record<Lang, string> = { en: "English", es: "Español" };
 export const REPO = "https://github.com/julio-daza/kie-cli";
 export const NPM = "https://www.npmjs.com/package/@uxdata-co/kie";
+export const AFFILIATE = "https://kie.ai?ref=abddfed9f3893359a999113356686aaa";
 
 const en = {
   meta: {
@@ -39,6 +40,19 @@ const en = {
       { name: "Cursor", icon: "cursor", hint: "/ in Agent chat" },
       { name: "Gemini CLI", icon: "gemini", hint: "auto-activated" },
     ],
+  },
+  affiliate: {
+    eyebrow: "Support this project",
+    title: "Same models. Up to 84% cheaper.",
+    lead: "kie runs on KIE.ai — the same Veo, Nano Banana, GPT Image, Kling and Seedance models the official APIs serve, at a fraction of the price. Prepaid wallet, no hidden fees, and failed generations are never billed.",
+    stats: [
+      { v: "\u221286%", k: "GPT Image 2 vs OpenAI" },
+      { v: "\u221261%", k: "Veo 3.1 vs Google" },
+      { v: "\u221250%", k: "Nano Banana 2 vs Google" },
+      { v: "$0", k: "for failed tasks" },
+    ],
+    cta: "Sign up on Kie",
+    note: "By signing up with this affiliate link you support the maintenance and updates of this code.",
   },
   why: {
     eyebrow: "Why kie",
@@ -233,6 +247,19 @@ const es: typeof en = {
       { name: "Cursor", icon: "cursor", hint: "/ en el chat del Agente" },
       { name: "Gemini CLI", icon: "gemini", hint: "se activa sola" },
     ],
+  },
+  affiliate: {
+    eyebrow: "Apoya este proyecto",
+    title: "Los mismos modelos. Hasta 84% más barato.",
+    lead: "kie corre sobre KIE.ai — los mismos modelos Veo, Nano Banana, GPT Image, Kling y Seedance que sirven las APIs oficiales, por una fracción del precio. Billetera prepaga, sin cargos ocultos, y las generaciones fallidas nunca se cobran.",
+    stats: [
+      { v: "\u221286%", k: "GPT Image 2 vs OpenAI" },
+      { v: "\u221261%", k: "Veo 3.1 vs Google" },
+      { v: "\u221250%", k: "Nano Banana 2 vs Google" },
+      { v: "$0", k: "por tareas fallidas" },
+    ],
+    cta: "Regístrate en Kie",
+    note: "Al registrarte con este link de afiliado apoyas el mantenimiento y actualización de este código.",
   },
   why: {
     eyebrow: "Por qué kie",

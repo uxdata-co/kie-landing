@@ -4,7 +4,7 @@ import Icon from "./Icon.astro";
 import Terminal from "./Terminal.astro";
 import AudienceToggle from "./AudienceToggle.astro";
 import { guardTerminal, heroTerminal } from "./terminals";
-import { REPO, localePath, t, type Lang } from "../i18n/ui";
+import { REPO, AFFILIATE, localePath, t, type Lang } from "../i18n/ui";
 
 interface Props {
   lang: Lang;
@@ -69,6 +69,35 @@ const code = (x: string) => x.replace(/`([^`]+)`/g, "<code>$1</code>");
           <span class="lbl mono">{a.hint}</span>
         </a>
       ))}
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ AFFILIATE -->
+<section class="affiliate" id="kie-ai">
+  <div class="rails">
+    <span class="cross tl"></span><span class="cross tr"></span>
+    <div class="aff-card reveal">
+      <div class="aff-bg" aria-hidden="true">
+        <img src="/kie-hero.webp" alt="" width="1500" height="1461" loading="lazy" decoding="async" />
+      </div>
+      <div class="aff-copy">
+        <p class="eyebrow">{s.affiliate.eyebrow}</p>
+        <h2 class="aff-title">{s.affiliate.title}</h2>
+        <p class="lead">{s.affiliate.lead}</p>
+        <ul class="aff-stats">
+          {s.affiliate.stats.map((st) => (
+            <li>
+              <span class="aff-v">{st.v}</span>
+              <span class="lbl mono">{st.k}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="aff-action">
+        <a href={AFFILIATE} class="btn btn-brand aff-btn" target="_blank" rel="sponsored noopener">{s.affiliate.cta}</a>
+        <p class="aff-note">{s.affiliate.note}</p>
+      </div>
     </div>
   </div>
 </section>
@@ -434,6 +463,196 @@ const code = (x: string) => x.replace(/`([^`]+)`/g, "<code>$1</code>");
   .lbl {
     font-size: 14px;
     color: var(--fg-muted);
+  }
+
+  /* affiliate */
+  .affiliate {
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(700px 340px at 82% 0%, rgba(0, 168, 255, 0.12), transparent 62%);
+  }
+  .aff-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 0.78fr);
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    padding: clamp(28px, 4vw, 44px);
+    margin-block: clamp(56px, 7vw, 88px);
+  }
+  @media (max-width: 900px) {
+    .aff-card {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .aff-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .aff-bg img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 78% 45%;
+    opacity: 0.9;
+  }
+  .aff-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(520px 300px at 6% 30%, rgba(0, 168, 255, 0.16), transparent 70%),
+      linear-gradient(180deg, rgba(14, 14, 18, 0.55) 0%, rgba(14, 14, 18, 0) 22%, rgba(14, 14, 18, 0) 78%, rgba(14, 14, 18, 0.6) 100%),
+      linear-gradient(
+        90deg,
+        rgb(14, 14, 18) 0%,
+        rgba(14, 14, 18, 0.97) 40%,
+        rgba(14, 14, 18, 0.86) 58%,
+        rgba(14, 14, 18, 0.6) 78%,
+        rgba(14, 14, 18, 0.34) 100%
+      );
+  }
+  @media (max-width: 900px) {
+    .aff-bg img {
+      object-position: 68% 40%;
+      opacity: 0.7;
+    }
+    .aff-bg::after {
+      background:
+        linear-gradient(180deg, rgba(14, 14, 18, 0.92) 0%, rgba(14, 14, 18, 0.86) 45%, rgba(14, 14, 18, 0.96) 100%);
+    }
+  }
+  .aff-title {
+    margin: 14px 0 0;
+    font-size: clamp(28px, 3.4vw, 42px);
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+  .aff-card .lead {
+    margin-top: 14px;
+    max-width: 62ch;
+  }
+  .aff-stats {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 22px;
+  }
+  @media (max-width: 620px) {
+    .aff-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .aff-stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .aff-v {
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--brand);
+  }
+  .aff-stats .lbl {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .aff-action {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 20px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: rgba(10, 10, 12, 0.62);
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+  }
+  @supports not (backdrop-filter: blur(4px)) {
+    .aff-action {
+      background: rgba(10, 10, 12, 0.9);
+    }
+  }
+  .aff-btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    text-align: center;
+    justify-content: center;
+  }
+  /* a light stroke travelling around the perimeter — the button colour never changes */
+  .aff-btn::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background:
+      conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(255, 255, 255, 0) 4deg,
+        rgba(214, 240, 255, 0.9) 10deg,
+        rgba(255, 255, 255, 1) 14deg,
+        rgba(214, 240, 255, 0.9) 18deg,
+        rgba(255, 255, 255, 0) 24deg,
+        transparent 180deg,
+        rgba(255, 255, 255, 0) 184deg,
+        rgba(214, 240, 255, 0.6) 190deg,
+        rgba(255, 255, 255, 0.75) 194deg,
+        rgba(214, 240, 255, 0.6) 198deg,
+        rgba(255, 255, 255, 0) 204deg,
+        transparent 360deg
+      ),
+      linear-gradient(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.16));
+    animation: aff-orbit 3.6s linear infinite;
+  }
+  .aff-btn::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 2px;
+    border-radius: calc(var(--radius) - 1px);
+    background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+  }
+  .aff-btn:hover {
+    filter: none;
+  }
+  @keyframes aff-orbit {
+    to {
+      rotate: 360deg;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .aff-btn::before {
+      animation: none;
+      opacity: 0.5;
+    }
+  }
+  .aff-note {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    text-align: center;
   }
 
   /* why */

@@ -5,6 +5,24 @@ generation CLI for agents. Astro 5, static output, English at `/` and Spanish at
 
 **Live**: https://kiecli.com (`/docs`, `/es/`, `/es/docs`)
 
+## Support this project
+
+The site is free and the CLI is MIT. `kie` runs on **KIE.ai** — the same Veo, Nano Banana, GPT
+Image, Kling and Seedance models the official APIs serve, at up to **84% less** (−86% on GPT
+Image 2, −61% on Veo 3.1, −50% on Nano Banana 2), with failed generations never billed.
+
+<p align="center">
+  <a href="https://kie.ai?ref=abddfed9f3893359a999113356686aaa"><img src="https://img.shields.io/badge/Sign%20up%20on%20Kie-Support%20this%20project-00a8ff?style=for-the-badge" alt="Sign up on Kie"></a>
+</p>
+
+<p align="center">
+  <sub>By signing up with this affiliate link you support the maintenance and updates of this code.</sub>
+</p>
+
+The same link powers the affiliate banner on the landing page (`AFFILIATE` in
+`src/i18n/ui.ts`, rendered by the `#kie-ai` section of `src/components/Landing.astro`, with
+`public/kie-hero.webp` — a cropped/re-encoded copy of KIE's own hero art — as the backdrop).
+
 ## Stack
 
 - Astro 5 with the built-in i18n router (`en` default, `es` prefixed).
